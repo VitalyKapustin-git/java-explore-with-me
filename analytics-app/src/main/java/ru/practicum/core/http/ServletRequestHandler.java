@@ -54,12 +54,12 @@ public class ServletRequestHandler {
 
         JsonNode root = mapper.readTree(response.getBody());
 
-        if (root.isNull() || root.size() == 0) return 0L;
+        if(root.isNull() || root.size() == 0) return 0L;
 
         JsonNode views = root.get(0).path("hits");
 
-        if (views == null) return 0L;
-        if (views.asLong() == 1) return 1L;
+        if(views == null) return 0L;
+        if(views.asLong() == 1) return 1L;
 
         return views.asLong() - 1;
 

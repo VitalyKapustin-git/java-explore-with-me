@@ -10,7 +10,7 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class ViewServiceImpl implements ViewService {
+public class ViewServiceImpl implements ViewService{
 
     private ViewRepository viewRepository;
 
@@ -42,9 +42,9 @@ public class ViewServiceImpl implements ViewService {
         LocalDateTime startDateTime = LocalDateTime.parse(start, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         LocalDateTime startEndTime = LocalDateTime.parse(end, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-        if (uris == null) {
+        if(uris == null) {
 
-            if (!unique) {
+            if(!unique) {
                 return viewRepository.getAllViewsNonUnique(startDateTime, startEndTime);
             } else {
                 return viewRepository.getAllViewsUnique(startDateTime, startEndTime);
@@ -52,7 +52,7 @@ public class ViewServiceImpl implements ViewService {
 
         } else {
 
-            if (!unique) {
+            if(!unique) {
                 return viewRepository.getViewsNonUniqueByUris(startDateTime, startEndTime, uris);
             } else {
                 return viewRepository.getViewsUniqueByUris(startDateTime, startEndTime, uris);
