@@ -57,8 +57,7 @@ public class StatsHttpClient {
 
         StatsDto root = mapper.readValue(response.getBody()
                         .replace("[", "")
-                        .replace("]", "")
-                , StatsDto.class);
+                        .replace("]", ""), StatsDto.class);
 
         long views = root.getHits();
 
