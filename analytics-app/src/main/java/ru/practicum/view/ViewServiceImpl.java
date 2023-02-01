@@ -18,14 +18,10 @@ public class ViewServiceImpl implements ViewService {
     @Override
     public ViewDto saveRequest(ViewDto viewDto) {
 
-        System.out.println("SERVICE START");
-
         viewDto.setDate(LocalDateTime.now());
 
         View view = viewRepository.save(ViewMapper.toView(viewDto));
         viewDto.setId(view.getId());
-
-        System.out.println("SERVICE END");
 
         return viewDto;
     }
@@ -33,11 +29,6 @@ public class ViewServiceImpl implements ViewService {
     @Transactional(readOnly = true)
     @Override
     public List<StatsDto> getStats(String start, String end, List<String> uris, Boolean unique) {
-
-        System.out.println(start);
-        System.out.println(end);
-        System.out.println("GET STATS START");
-        System.out.println(uris);
 
         LocalDateTime startDateTime = LocalDateTime.parse(start, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         LocalDateTime startEndTime = LocalDateTime.parse(end, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
