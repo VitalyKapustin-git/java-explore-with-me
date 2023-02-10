@@ -30,13 +30,13 @@ public class CompilationServiceImpl implements CompilationService {
         int fromPage = from / size;
         Pageable pageable = PageRequest.of(fromPage, size);
 
-        if(pinnedFilter == null) {
+        if (pinnedFilter == null) {
             return compilationRepository.findAll(pageable).stream()
                     .map(CompilationMapper::toCompilationDto)
                     .collect(Collectors.toList());
         }
 
-        if(pinnedFilter) {
+        if (pinnedFilter) {
             return compilationRepository.getCompilationsByPinnedIsTrue(pageable).stream()
                     .map(CompilationMapper::toCompilationDto)
                     .collect(Collectors.toList());

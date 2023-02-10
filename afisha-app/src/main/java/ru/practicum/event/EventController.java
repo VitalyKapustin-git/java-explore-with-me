@@ -19,13 +19,11 @@ import java.util.List;
 @Validated
 public class EventController {
 
-    public final static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
-
     private EventService eventService;
 
     private HttpServletRequest request;
 
-    private StatsHttpClient statsHttpClient;
+    private final StatsHttpClient statsHttpClient;
 
     // Public: События
     // Получение событий с возможностью фильтрации
@@ -34,9 +32,9 @@ public class EventController {
                                             @RequestParam(required = false) @Nullable List<Integer> categories,
                                             @RequestParam(required = false) @Nullable Boolean paid,
 
-                                            @DateTimeFormat(pattern = DATE_FORMAT)
+                                            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
                                             @RequestParam(required = false) @Nullable LocalDateTime rangeStart,
-                                            @DateTimeFormat(pattern = DATE_FORMAT)
+                                            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
                                             @RequestParam(required = false) @Nullable LocalDateTime rangeEnd,
                                             @RequestParam(defaultValue = "false") boolean onlyAvailable,
                                             @RequestParam(required = false) @Nullable String sort,
@@ -95,14 +93,14 @@ public class EventController {
                                                @RequestParam(required = false) List<String> states,
                                                @RequestParam(required = false) List<Integer> categories,
 
-                                            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-                                            @RequestParam(required = false) LocalDateTime rangeStart,
+                                               @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+                                               @RequestParam(required = false) LocalDateTime rangeStart,
 
-                                            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-                                            @RequestParam(required = false) LocalDateTime rangeEnd,
+                                               @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+                                               @RequestParam(required = false) LocalDateTime rangeEnd,
 
-                                            @RequestParam(defaultValue = "0") int from,
-                                            @RequestParam(defaultValue = "10") int size) throws JsonProcessingException {
+                                               @RequestParam(defaultValue = "0") int from,
+                                               @RequestParam(defaultValue = "10") int size) throws JsonProcessingException {
         return eventService.getAllEventsFull(usersId, states, categories, rangeStart, rangeEnd, from, size);
     }
 

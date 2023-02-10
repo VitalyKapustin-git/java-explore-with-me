@@ -45,8 +45,8 @@ public class RequestController {
     // Подтверждение чужой заявки на участие со стороны автора события
     @PatchMapping("/users/{userId}/events/{eventId}/requests")
     public EventRequestStatusUpdateResult changeRequestStatusForOwnEvent(@PathVariable long userId,
-                                                     @PathVariable long eventId,
-                                                          @RequestBody @Valid RequestStatusDto requestStatusDto) throws JsonProcessingException {
+                                                                         @PathVariable long eventId,
+                                                                         @RequestBody @Valid RequestStatusDto requestStatusDto) throws JsonProcessingException {
         return requestService.changeRequestStatusForOwnEvent(userId, eventId, requestStatusDto);
     }
 

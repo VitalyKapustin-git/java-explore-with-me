@@ -24,9 +24,9 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto createUser(UserDto userDto) {
 
-        if(userDto.getEmail() == null || userDto.getName() == null)
+        if (userDto.getEmail() == null || userDto.getName() == null)
             throw new BadRequestException("No empty fields allowed");
-        if(userRepository.getUserByName(userDto.getName()) != null)
+        if (userRepository.getUserByName(userDto.getName()) != null)
             throw new ConflictException("User already exists");
 
         User user = UserMapper.toUser(userDto);
@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
         Pageable pageable = PageRequest.of(fromPage, size);
 
         List<User> users = ids == null ? userRepository.findAll(pageable).toList() :
-                                            userRepository.getUsersByIdIn(ids, pageable);
+                userRepository.getUsersByIdIn(ids, pageable);
 
         return users.stream().map(UserMapper::toUserDto).collect(Collectors.toList());
 
@@ -62,7 +62,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private void checkUser(Long userId) {
-        if(getUsers(List.of(userId), 0, 1).size() == 0)
+        if (getUsers(List.of(userId), 0, 1).size() == 0)
             throw new NotFoundException("User with id=" + userId + " was not found.");
     }
 

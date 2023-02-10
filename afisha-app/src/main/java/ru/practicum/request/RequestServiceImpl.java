@@ -41,22 +41,22 @@ public class RequestServiceImpl implements RequestService {
 
         // Проверка на повторный запрос
         Boolean reqExists = requestRepository.checkIfUserRequestAlreadyExists(userId, eventId);
-        if(reqExists != null)
+        if (reqExists != null)
             throw new ConflictException("Request from user with id=" + userId + " already exists");
 
         EventFullDto eventFullDto = eventService.getEventById(eventId);
 
         // Инициатор события не может добавить запрос на участие в своём событии
-        if(eventFullDto.getInitiator().getId() == userId)
+        if (eventFullDto.getInitiator().getId() == userId)
             throw new ConflictException("You cant subscribe for own event");
 
         // Проверка что событие (event) уже опубликовано
         // нельзя участвовать в неопубликованном событии
-        if(!eventFullDto.getState().equals(EventState.PUBLISHED.toString()))
+        if (!eventFullDto.getState().equals(EventState.PUBLISHED.toString()))
             throw new ConflictException("You cant subscribe for non published event");
 
         // Если у события достигнут лимит запросов на участие - необходимо вернуть ошибку
-        if(eventFullDto.getConfirmedRequests() >= eventFullDto.getParticipantLimit())
+        if (eventFullDto.getConfirmedRequests() >= eventFullDto.getParticipantLimit())
             throw new ConflictException("No vacant slots for event");
 
         RequestDto requestDto = new RequestDto();
@@ -70,7 +70,7 @@ public class RequestServiceImpl implements RequestService {
 
         // Если для события отключена пре-модерация запросов на участие,
         // то запрос должен автоматически перейти в состояние подтвержденного
-        if(!requestDto.getEvent().getRequestModeration())
+        if (!requestDto.getEvent().getRequestModeration())
             request.setStatus(RequestStatus.CONFIRMED.toString());
 
         requestRepository.save(request);
@@ -102,13 +102,13 @@ public class RequestServiceImpl implements RequestService {
     @Override
     @Transactional
     public EventRequestStatusUpdateResult changeRequestStatusForOwnEvent(long userId,
-                                                          long eventId,
-                                                          RequestStatusDto requestStatusDto)
+                                                                         long eventId,
+                                                                         RequestStatusDto requestStatusDto)
             throws JsonProcessingException {
 
         EventFullDto event = eventService.getEventById(eventId);
 
-        if(event.getConfirmedRequests() == event.getParticipantLimit())
+        if (event.getConfirmedRequests() == event.getParticipantLimit())
             throw new ConflictException("No available tickets");
 
         validateOwner(userId, event.getInitiator().getId());
@@ -125,7 +125,7 @@ public class RequestServiceImpl implements RequestService {
                 .getRequestsByEvent_IdAndEvent_Initiator_Id(eventId, userId)
                 .stream()
                 .peek(request -> {
-                    if(reqToBeChanged.contains(request.getId())) request.setStatus(newStatus);
+                    if (reqToBeChanged.contains(request.getId())) request.setStatus(newStatus);
                 })
                 .map(RequestMapper::toShortDto)
                 .collect(Collectors.toList());

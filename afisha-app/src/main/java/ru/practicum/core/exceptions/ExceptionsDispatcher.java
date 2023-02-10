@@ -58,7 +58,6 @@ public class ExceptionsDispatcher {
     }
 
 
-
     @ExceptionHandler(BadRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> exists(BadRequestException e) {

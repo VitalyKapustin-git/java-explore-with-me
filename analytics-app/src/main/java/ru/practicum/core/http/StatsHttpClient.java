@@ -2,10 +2,8 @@ package ru.practicum.core.http;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.practicum.view.StatsDto;
@@ -13,8 +11,6 @@ import ru.practicum.view.StatsDto;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-@Service
-@AllArgsConstructor
 public class StatsHttpClient {
 
     private static final String STATS_POST_URL = "http://localhost:9090/hit";
@@ -56,8 +52,8 @@ public class StatsHttpClient {
         if (response.getBody() == null || response.getBody().length() == 2) return 0L;
 
         StatsDto root = mapper.readValue(response.getBody()
-                        .replace("[", "")
-                        .replace("]", ""), StatsDto.class);
+                .replace("[", "")
+                .replace("]", ""), StatsDto.class);
 
         long views = root.getHits();
 

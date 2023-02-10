@@ -24,7 +24,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public CategoryDto createCategory(CategoryDto categoryDto) {
 
-        if(categoryRepository.getCategoryByName(categoryDto.getName()) != null)
+        if (categoryRepository.getCategoryByName(categoryDto.getName()) != null)
             throw new ConflictException("Category already exists");
 
         Category category = CategoryMapper.toCategory(categoryDto);
@@ -42,7 +42,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category category = categoryRepository.getCategoryById(catId);
 
-        if(category == null)
+        if (category == null)
             throw new NotFoundException("Category with id=" + catId + " was not found.");
 
         return CategoryMapper.toCategoryDto(categoryRepository.getCategoryById(catId));
@@ -65,8 +65,8 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public CategoryDto updateCategory(int catId, CategoryDto categoryDto) {
 
-        if(categoryDto.getName() == null) throw new BadRequestException("Non valid body");
-        if(categoryRepository.getCategoryByName(categoryDto.getName()) != null)
+        if (categoryDto.getName() == null) throw new BadRequestException("Non valid body");
+        if (categoryRepository.getCategoryByName(categoryDto.getName()) != null)
             throw new ConflictException("Category already exists");
 
         categoryDto.setId(catId);
@@ -86,7 +86,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     private void checkCategory(Integer catId) {
-        if(getCategory(catId) == null)
+        if (getCategory(catId) == null)
             throw new NotFoundException("Category with id=" + catId + " was not found.");
     }
 

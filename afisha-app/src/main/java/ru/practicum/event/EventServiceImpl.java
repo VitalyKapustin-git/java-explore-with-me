@@ -78,7 +78,7 @@ public class EventServiceImpl implements EventService {
         List<Event> findByCriterias = eventRepository.findAll((Specification<Event>) (root, cq, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(text != null && !text.isBlank()) {
+            if (text != null && !text.isBlank()) {
                 predicates.add(
                         cb.or(
                                 cb.like(cb.lower(root.get("description")),
@@ -89,11 +89,11 @@ public class EventServiceImpl implements EventService {
                 );
             }
 
-            if(categories != null && categories.size() > 0) {
+            if (categories != null && categories.size() > 0) {
                 predicates.add(root.get("category").get("id").in(categories));
             }
 
-            if(paid != null) {
+            if (paid != null) {
 
                 if (paid) {
                     predicates.add(cb.isTrue(root.get("paid")));
@@ -104,21 +104,21 @@ public class EventServiceImpl implements EventService {
                 }
             }
 
-            if(rangeStart != null && rangeEnd != null) {
+            if (rangeStart != null && rangeEnd != null) {
 
                 if (rangeStart.isAfter(rangeEnd)) throw new NotFoundException("Start date could not be after end date");
                 predicates.add(cb.between(root.get("eventDate"), rangeStart, rangeEnd));
             }
 
-            if(rangeStart != null && rangeEnd == null) {
+            if (rangeStart != null && rangeEnd == null) {
                 predicates.add(cb.greaterThan(root.get("eventDate"), rangeStart));
             }
 
-            if(rangeStart == null && rangeEnd != null) {
+            if (rangeStart == null && rangeEnd != null) {
                 predicates.add(cb.lessThan(root.get("eventDate"), rangeEnd));
             }
 
-            if(sort != null && sort.equalsIgnoreCase("EVENT_DATE")) {
+            if (sort != null && sort.equalsIgnoreCase("EVENT_DATE")) {
                 cq.orderBy(cb.desc(root.get("eventDate")));
             }
 
@@ -134,17 +134,17 @@ public class EventServiceImpl implements EventService {
                 .map(EventShortDto::getId)
                 .collect(Collectors.toList()));
 
-        for(EventShortDto eventShortDto : eventShortDtos) {
+        for (EventShortDto eventShortDto : eventShortDtos) {
             eventShortDto.setViews(statsHttpClient.getViews("/events/" + eventShortDto.getId(),
                     eventShortDto.getCreatedOn()));
             eventShortDto.setConfirmedRequests(
                     confirmedRequests.get(eventShortDto.getId()) == null ?
                             0L : confirmedRequests.get(eventShortDto.getId())
-                    );
+            );
         }
 
         // Проверка, есть ли в событии еще доступные места или нет (сравнение подтвержденных заявок и кол-ва мест на соб)
-        if(onlyAvailable) eventShortDtos = eventShortDtos.stream()
+        if (onlyAvailable) eventShortDtos = eventShortDtos.stream()
                 .filter(v -> Optional.ofNullable(v.getConfirmedRequests()).orElse(0L) == 0 ||
                         Optional.ofNullable(v.getConfirmedRequests()).orElse(0L) <
                                 Optional.ofNullable(v.getParticipantLimit()).orElse(0L))
@@ -173,7 +173,7 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList())
         );
 
-        for(EventShortDto eventShortDto : eventShortDtos) {
+        for (EventShortDto eventShortDto : eventShortDtos) {
             eventShortDto.setViews(statsHttpClient.getViews("/events/" + eventShortDto.getId(),
                     eventShortDto.getCreatedOn()));
             eventShortDto.setConfirmedRequests(
@@ -189,7 +189,7 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventFullDto createEvent(long userId, EventNewDto eventNewDto) {
 
-        if(eventNewDto.getEventDate().isBefore(LocalDateTime.now().plusHours(2)))
+        if (eventNewDto.getEventDate().isBefore(LocalDateTime.now().plusHours(2)))
             throw new ConflictException("Event date must be in future and +2 hours from actual time");
 
         eventNewDto.setCategoryDto(categoryService.getCategory(eventNewDto.getCategory()));
@@ -221,18 +221,18 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventFullDto changeEventByOwnerUser(long userId, long eventId,
-                                        EventUpdateAdminDto eventUpdateAdminDto) {
+                                               EventUpdateAdminDto eventUpdateAdminDto) {
 
         LocalDateTime newEventTime = eventUpdateAdminDto.getEventDate();
-        if(newEventTime != null) {
+        if (newEventTime != null) {
             if (eventUpdateAdminDto.getEventDate().isBefore(LocalDateTime.now().plusHours(2)))
                 throw new ConflictException("Event date must be in future and +2 hours from actual time");
         }
 
         Event oldEvent = eventRepository.getEventById(eventId);
-        if(oldEvent == null) throw new NotFoundException("Not found event with id=" + eventId);
-        if(oldEvent.getInitiator().getId() != userId) throw new ConflictException("You are not event owner");
-        if(oldEvent.getState().equals("PUBLISHED")) throw new ConflictException("Can't edit PUBLISHED event");
+        if (oldEvent == null) throw new NotFoundException("Not found event with id=" + eventId);
+        if (oldEvent.getInitiator().getId() != userId) throw new ConflictException("You are not event owner");
+        if (oldEvent.getState().equals("PUBLISHED")) throw new ConflictException("Can't edit PUBLISHED event");
 
         extractEvent(oldEvent, eventUpdateAdminDto);
 
@@ -261,29 +261,29 @@ public class EventServiceImpl implements EventService {
         List<Event> findByCriterias = eventRepository.findAll((Specification<Event>) (root, cq, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(usersId != null && usersId.size() > 0) {
+            if (usersId != null && usersId.size() > 0) {
                 predicates.add(root.get("initiator").get("id").in(usersId));
             }
 
-            if(states != null && states.size() > 0) {
+            if (states != null && states.size() > 0) {
                 predicates.add(root.get("state").in(states));
             }
 
-            if(categories != null && categories.size() > 0) {
+            if (categories != null && categories.size() > 0) {
                 predicates.add(root.get("category").get("id").in(categories));
             }
 
-            if(rangeStart != null && rangeEnd != null) {
+            if (rangeStart != null && rangeEnd != null) {
 
                 if (rangeStart.isAfter(rangeEnd)) throw new NotFoundException("Start date could not be after end date");
                 predicates.add(cb.between(root.get("eventDate"), rangeStart, rangeEnd));
             }
 
-            if(rangeStart != null && rangeEnd == null) {
+            if (rangeStart != null && rangeEnd == null) {
                 predicates.add(cb.greaterThan(root.get("eventDate"), rangeStart));
             }
 
-            if(rangeStart == null && rangeEnd != null) {
+            if (rangeStart == null && rangeEnd != null) {
                 predicates.add(cb.lessThan(root.get("eventDate"), rangeEnd));
             }
 
@@ -294,9 +294,9 @@ public class EventServiceImpl implements EventService {
         List<Long> eventsId = events.stream().map(EventFullDto::getId).collect(Collectors.toList());
         Map<Long, Long> confirmedRequests = countConfirmedRequests(eventsId);
 
-        for(EventFullDto e : events) {
+        for (EventFullDto e : events) {
             Long confReqNum = confirmedRequests.get(e.getId());
-            if(confReqNum != null)
+            if (confReqNum != null)
                 e.setConfirmedRequests(confReqNum);
 
             e.setViews(statsHttpClient.getViews("/events/" + e.getId(),
@@ -330,7 +330,7 @@ public class EventServiceImpl implements EventService {
 
         Map<Long, Long> confirmedRequests = countConfirmedRequests(ids);
 
-        for(EventFullDto eventFullDto : eventFullDtos) {
+        for (EventFullDto eventFullDto : eventFullDtos) {
             eventFullDto.setViews(statsHttpClient.getViews("/events/" + eventFullDto.getId(),
                     eventFullDto.getCreatedOn()));
             eventFullDto.setConfirmedRequests(
@@ -344,29 +344,29 @@ public class EventServiceImpl implements EventService {
 
     private void extractEvent(Event oldEvent, EventUpdateAdminDto eventUpdateAdminDto) {
 
-        if(eventUpdateAdminDto.getCategory() != null &&
+        if (eventUpdateAdminDto.getCategory() != null &&
                 categoryService.getCategory(eventUpdateAdminDto.getCategory()) != null) {
             oldEvent.setCategory(CategoryMapper.toCategory(
                     categoryService.getCategory(eventUpdateAdminDto.getCategory()))
             );
         }
 
-        if(eventUpdateAdminDto.getAnnotation() != null) oldEvent.setAnnotation(eventUpdateAdminDto.getAnnotation());
-        if(!Optional.ofNullable(eventUpdateAdminDto.getDescription()).orElse("").isBlank())
+        if (eventUpdateAdminDto.getAnnotation() != null) oldEvent.setAnnotation(eventUpdateAdminDto.getAnnotation());
+        if (!Optional.ofNullable(eventUpdateAdminDto.getDescription()).orElse("").isBlank())
             oldEvent.setDescription(eventUpdateAdminDto.getDescription());
-        if(eventUpdateAdminDto.getEventDate() != null) oldEvent.setEventDate(eventUpdateAdminDto.getEventDate());
-        if(eventUpdateAdminDto.getLocation() != null) {
+        if (eventUpdateAdminDto.getEventDate() != null) oldEvent.setEventDate(eventUpdateAdminDto.getEventDate());
+        if (eventUpdateAdminDto.getLocation() != null) {
             oldEvent.setLat(eventUpdateAdminDto.getLocation() == null ? 0.0F : eventUpdateAdminDto.getLocation().getLat());
             oldEvent.setLon(eventUpdateAdminDto.getLocation() == null ? 0.0F : eventUpdateAdminDto.getLocation().getLon());
         }
-        if(eventUpdateAdminDto.getPaid() != null) oldEvent.setPaid(eventUpdateAdminDto.getPaid());
-        if(eventUpdateAdminDto.getParticipantLimit() != null)
+        if (eventUpdateAdminDto.getPaid() != null) oldEvent.setPaid(eventUpdateAdminDto.getPaid());
+        if (eventUpdateAdminDto.getParticipantLimit() != null)
             oldEvent.setParticipantLimit(eventUpdateAdminDto.getParticipantLimit());
-        if(eventUpdateAdminDto.getRequestModeration() != null)
+        if (eventUpdateAdminDto.getRequestModeration() != null)
             oldEvent.setRequestModeration(eventUpdateAdminDto.getRequestModeration());
-        if(!Optional.ofNullable(eventUpdateAdminDto.getTitle()).orElse("").isBlank())
+        if (!Optional.ofNullable(eventUpdateAdminDto.getTitle()).orElse("").isBlank())
             oldEvent.setTitle(eventUpdateAdminDto.getTitle());
-        if(eventUpdateAdminDto.getStateAction() != null) {
+        if (eventUpdateAdminDto.getStateAction() != null) {
             switch (eventUpdateAdminDto.getStateAction()) {
                 case "PUBLISH_EVENT":
                     oldEvent.setState(EventState.PUBLISHED.toString());
@@ -391,8 +391,7 @@ public class EventServiceImpl implements EventService {
                                 "select r.event.id as event_id, count(r.id) as requests_num " +
                                 "from Request r where r.status = 'CONFIRMED' and r.event.id in (" +
                                 reqIds.toString().replace("[", "").replace("]", "")
-                                + ") group by r.event.id"
-                        , Tuple.class)
+                                + ") group by r.event.id", Tuple.class)
                 .getResultStream()
                 .collect(
                         Collectors.toMap(
@@ -408,24 +407,24 @@ public class EventServiceImpl implements EventService {
         String oldEventState = oldEvent.getState();
         String newEventState = eventUpdateAdminDto.getStateAction();
 
-        if(newEventDate != null) {
+        if (newEventDate != null) {
             if (eventUpdateAdminDto.getEventDate().isBefore(LocalDateTime.now().plusHours(2)))
                 throw new ConflictException("Event date must be in future and +2 hours from actual time");
         }
 
-        if(newEventDate != null) {
+        if (newEventDate != null) {
             if (newEventDate.isBefore(LocalDateTime.now()))
                 throw new ConflictException("You can't setup past date");
         }
 
-        if(newEventState != null) {
-            if(oldEventState.equals(EventState.PUBLISHED.toString())
+        if (newEventState != null) {
+            if (oldEventState.equals(EventState.PUBLISHED.toString())
                     && newEventState.equals("PUBLISH_EVENT"))
                 throw new ConflictException("Event already published");
-            if(oldEventState.equals(EventState.PUBLISHED.toString())
+            if (oldEventState.equals(EventState.PUBLISHED.toString())
                     && newEventState.equals("REJECT_EVENT"))
                 throw new ConflictException("Published event couldn't be cancelled");
-            if(oldEventState.equals(EventState.CANCELED.toString())
+            if (oldEventState.equals(EventState.CANCELED.toString())
                     && newEventState.equals("PUBLISH_EVENT")) {
                 throw new ConflictException("Can't publish canceled event");
             }

@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@JsonIgnoreProperties(value = { "createdOn", "participantLimit" })
+@JsonIgnoreProperties(value = {"createdOn", "participantLimit"})
 public class EventShortDto {
 
     private long id;

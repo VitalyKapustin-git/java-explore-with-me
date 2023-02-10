@@ -18,8 +18,8 @@ public interface RequestService {
 
     // Подтверждение чужой заявки на участие в событии текущего пользователя
     EventRequestStatusUpdateResult changeRequestStatusForOwnEvent(long userId,
-                                                   long eventId,
-                                                   RequestStatusDto requestStatusDto)
+                                                                  long eventId,
+                                                                  RequestStatusDto requestStatusDto)
             throws JsonProcessingException;
 
 }

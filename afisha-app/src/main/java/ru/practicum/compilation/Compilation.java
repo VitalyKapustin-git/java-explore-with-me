@@ -30,8 +30,8 @@ public class Compilation {
     @ManyToMany
     @JoinTable(
             name = "compilations_events",
-            inverseJoinColumns = { @JoinColumn(name = "events_id") },
-            joinColumns = { @JoinColumn(name = "compilation_id") }
+            inverseJoinColumns = {@JoinColumn(name = "events_id")},
+            joinColumns = {@JoinColumn(name = "compilation_id")}
     )
     private List<Event> events;
 

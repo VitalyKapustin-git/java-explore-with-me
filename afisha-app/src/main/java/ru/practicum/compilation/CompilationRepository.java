@@ -7,12 +7,12 @@ import java.util.List;
 
 public interface CompilationRepository extends JpaRepository<Compilation, Integer> {
 
-     Compilation getCompilationById(long compId);
+    Compilation getCompilationById(long compId);
 
-     List<Compilation> getCompilationsByPinnedIsTrue(Pageable pageable);
+    List<Compilation> getCompilationsByPinnedIsTrue(Pageable pageable);
 
-     List<Compilation> getCompilationsByPinnedIsFalse(Pageable pageable);
+    List<Compilation> getCompilationsByPinnedIsFalse(Pageable pageable);
 
-     void removeCompilationById(long id);
+    void removeCompilationById(long id);
 
 }

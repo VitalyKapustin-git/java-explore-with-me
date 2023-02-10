@@ -18,8 +18,8 @@ public class UserController {
     // Получение информации о заявках текущего пользователя на участие в чужих событиях
     @GetMapping("/admin/users")
     public List<UserDto> getUsers(@RequestParam(required = false) List<Long> ids,
-                            @RequestParam(defaultValue = "0") @PositiveOrZero int from,
-                            @RequestParam(defaultValue = "10") @Positive int size) {
+                                  @RequestParam(defaultValue = "0") @PositiveOrZero int from,
+                                  @RequestParam(defaultValue = "10") @Positive int size) {
         return userService.getUsers(ids, from, size);
     }
 
