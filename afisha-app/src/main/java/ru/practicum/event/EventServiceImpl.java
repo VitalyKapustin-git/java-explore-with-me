@@ -122,7 +122,7 @@ public class EventServiceImpl implements EventService {
                 cq.orderBy(cb.desc(root.get("eventDate")));
             }
 
-            return cb.and(predicates.toArray(new Predicate[0]));
+            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         }, pageable).getContent();
 
         List<EventShortDto> eventShortDtos = findByCriterias.stream()
@@ -244,7 +244,7 @@ public class EventServiceImpl implements EventService {
     // Поиск событий
     @Override
     @Transactional(readOnly = true)
-    public List<EventFullDto> getAllEventsFull(List<Long> usersId,
+    public List<EventFullDto> getAllEventsFull(List<Long> users,
                                                List<String> states,
                                                List<Integer> categories,
                                                LocalDateTime rangeStart,
@@ -261,8 +261,10 @@ public class EventServiceImpl implements EventService {
         List<Event> findByCriterias = eventRepository.findAll((Specification<Event>) (root, cq, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if (usersId != null && usersId.size() > 0) {
-                predicates.add(root.get("initiator").get("id").in(usersId));
+            System.out.println(users);
+
+            if (users != null && users.size() > 0) {
+                predicates.add(root.get("initiator").get("id").in(users));
             }
 
             if (states != null && states.size() > 0) {
@@ -287,7 +289,7 @@ public class EventServiceImpl implements EventService {
                 predicates.add(cb.lessThan(root.get("eventDate"), rangeEnd));
             }
 
-            return cb.and(predicates.toArray(new Predicate[0]));
+            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         }, pageable).getContent();
 
         List<EventFullDto> events = findByCriterias.stream().map(EventMapper::toEventFullDto).collect(Collectors.toList());

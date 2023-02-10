@@ -89,7 +89,7 @@ public class EventController {
     // Admin: События
     // Поиск событий
     @GetMapping("/admin/events")
-    public List<EventFullDto> getAllEventsFull(@RequestParam(required = false) List<Long> usersId,
+    public List<EventFullDto> getAllEventsFull(@RequestParam(required = false) List<Long> users,
                                                @RequestParam(required = false) List<String> states,
                                                @RequestParam(required = false) List<Integer> categories,
 
@@ -101,7 +101,7 @@ public class EventController {
 
                                                @RequestParam(defaultValue = "0") int from,
                                                @RequestParam(defaultValue = "10") int size) throws JsonProcessingException {
-        return eventService.getAllEventsFull(usersId, states, categories, rangeStart, rangeEnd, from, size);
+        return eventService.getAllEventsFull(users, states, categories, rangeStart, rangeEnd, from, size);
     }
 
     // Редактирование события
