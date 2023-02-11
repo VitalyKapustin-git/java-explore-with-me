@@ -11,6 +11,7 @@ import ru.practicum.event.Event;
 import ru.practicum.event.EventMapper;
 import ru.practicum.event.EventService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -64,6 +65,8 @@ public class CompilationServiceImpl implements CompilationService {
             compilation.setEvents(eventService.getEventsById(compilationNewDto.getEvents()).stream()
                     .map(EventMapper::toEvent)
                     .collect(Collectors.toList()));
+        } else {
+            compilation.setEvents(new ArrayList<>());
         }
 
         compilationRepository.save(compilation);

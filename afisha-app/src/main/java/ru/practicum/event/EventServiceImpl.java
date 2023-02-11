@@ -261,8 +261,6 @@ public class EventServiceImpl implements EventService {
         List<Event> findByCriterias = eventRepository.findAll((Specification<Event>) (root, cq, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            System.out.println(users);
-
             if (users != null && users.size() > 0) {
                 predicates.add(root.get("initiator").get("id").in(users));
             }
@@ -390,10 +388,10 @@ public class EventServiceImpl implements EventService {
     // Подсчет подтвержденных запросов для событий по переданному набору id событий
     private Map<Long, Long> countConfirmedRequests(List<Long> reqIds) {
         return entityManager.createQuery("" +
-                                "select r.event.id as event_id, count(r.id) as requests_num " +
-                                "from Request r where r.status = 'CONFIRMED' and r.event.id in (" +
-                                reqIds.toString().replace("[", "").replace("]", "")
-                                + ") group by r.event.id", Tuple.class)
+                        "select r.event.id as event_id, count(r.id) as requests_num " +
+                        "from Request r where r.status = 'CONFIRMED' and r.event.id in (" +
+                        reqIds.toString().replace("[", "").replace("]", "")
+                        + ") group by r.event.id", Tuple.class)
                 .getResultStream()
                 .collect(
                         Collectors.toMap(

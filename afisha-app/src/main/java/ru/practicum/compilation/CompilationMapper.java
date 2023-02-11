@@ -2,6 +2,7 @@ package ru.practicum.compilation;
 
 import ru.practicum.event.EventMapper;
 
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 public class CompilationMapper {
@@ -13,9 +14,13 @@ public class CompilationMapper {
         compilationDto.setId(compilation.getId());
         compilationDto.setPinned(compilation.isPinned());
         compilationDto.setTitle(compilation.getTitle());
-        compilationDto.setEvents(compilation.getEvents().stream()
-                .map(EventMapper::toEventShortDto)
-                .collect(Collectors.toList()));
+        if (compilationDto.getEvents() == null) {
+            compilationDto.setEvents(new ArrayList<>());
+        } else {
+            compilationDto.setEvents(compilation.getEvents().stream()
+                    .map(EventMapper::toEventShortDto)
+                    .collect(Collectors.toList()));
+        }
 
         return compilationDto;
 
