@@ -15,9 +15,9 @@ import java.time.format.DateTimeFormatter;
 @Service
 public class StatsHttpClient {
 
-    private static final String STATS_POST_URL = "http://localhost:9090/hit";
+    private static final String STATS_POST_URL = "http://stats-server:9090/hit";
 
-    private static final String STATS_GET_URL = "http://localhost:9090/stats";
+    private static final String STATS_GET_URL = "http://stats-server:9090/stats";
 
     public void saveView(String remoteAddr, String requestURI) {
 
