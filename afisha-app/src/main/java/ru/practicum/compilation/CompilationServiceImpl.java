@@ -60,9 +60,11 @@ public class CompilationServiceImpl implements CompilationService {
     public CompilationDto addCompilation(CompilationNewDto compilationNewDto) throws JsonProcessingException {
 
         Compilation compilation = CompilationMapper.toCompilation(compilationNewDto);
-        compilation.setEvents(eventService.getEventsById(compilationNewDto.getEvents()).stream()
-                .map(EventMapper::toEvent)
-                .collect(Collectors.toList()));
+        if(compilation.getEvents() != null) {
+            compilation.setEvents(eventService.getEventsById(compilationNewDto.getEvents()).stream()
+                    .map(EventMapper::toEvent)
+                    .collect(Collectors.toList()));
+        }
 
         compilationRepository.save(compilation);
 
