@@ -1,6 +1,7 @@
 package ru.practicum.view;
 
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,6 +13,7 @@ public class ViewController {
     private ViewService viewService;
 
     @PostMapping("/hit")
+    @ResponseStatus(HttpStatus.CREATED)
     public ViewDto saveRequest(@RequestBody ViewDto viewDto) {
         return viewService.saveRequest(viewDto);
     }
