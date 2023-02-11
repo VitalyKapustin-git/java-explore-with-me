@@ -62,21 +62,15 @@ public class CompilationServiceImpl implements CompilationService {
     @Transactional
     public CompilationDto addCompilation(CompilationNewDto compilationNewDto) throws JsonProcessingException {
 
-        log.info("DEBUG_TAG Добавление новой подборки: {}", compilationNewDto);
-
         Compilation compilation = CompilationMapper.toCompilation(compilationNewDto);
-        if (compilation.getEvents() != null && compilation.getEvents().size() != 0) {
 
+        if (compilationNewDto.getEvents() != null && compilationNewDto.getEvents().size() != 0) {
             compilation.setEvents(eventService.getEventsById(compilationNewDto.getEvents()).stream()
                     .map(EventMapper::toEvent)
                     .collect(Collectors.toList()));
         } else {
             compilation.setEvents(new ArrayList<>());
         }
-
-        log.info("DEBUG_TAG Итоговая подборка перед сохранением: {}", compilation);
-        log.info("DEBUG_TAG Итоговая подборка содержит события: {}", compilation.getEvents());
-
 
         compilationRepository.save(compilation);
 

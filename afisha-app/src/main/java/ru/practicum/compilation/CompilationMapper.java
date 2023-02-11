@@ -14,7 +14,7 @@ public class CompilationMapper {
         compilationDto.setId(compilation.getId());
         compilationDto.setPinned(compilation.isPinned());
         compilationDto.setTitle(compilation.getTitle());
-        if (compilationDto.getEvents() == null) {
+        if (compilation.getEvents() == null) {
             compilationDto.setEvents(new ArrayList<>());
         } else {
             compilationDto.setEvents(compilation.getEvents().stream()
