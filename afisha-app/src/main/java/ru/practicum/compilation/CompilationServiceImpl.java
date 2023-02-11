@@ -2,6 +2,7 @@ package ru.practicum.compilation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 @Primary
+@Slf4j
 public class CompilationServiceImpl implements CompilationService {
 
     private final CompilationRepository compilationRepository;
@@ -60,14 +62,21 @@ public class CompilationServiceImpl implements CompilationService {
     @Transactional
     public CompilationDto addCompilation(CompilationNewDto compilationNewDto) throws JsonProcessingException {
 
+        log.info("DEBUG_TAG Добавление новой подборки: {}", compilationNewDto);
+
         Compilation compilation = CompilationMapper.toCompilation(compilationNewDto);
-        if (compilation.getEvents() != null) {
+        if (compilation.getEvents() != null && compilation.getEvents().size() != 0) {
+
             compilation.setEvents(eventService.getEventsById(compilationNewDto.getEvents()).stream()
                     .map(EventMapper::toEvent)
                     .collect(Collectors.toList()));
         } else {
             compilation.setEvents(new ArrayList<>());
         }
+
+        log.info("DEBUG_TAG Итоговая подборка перед сохранением: {}", compilation);
+        log.info("DEBUG_TAG Итоговая подборка содержит события: {}", compilation.getEvents());
+
 
         compilationRepository.save(compilation);
 
