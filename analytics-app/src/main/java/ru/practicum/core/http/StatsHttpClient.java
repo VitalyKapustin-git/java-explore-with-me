@@ -1,16 +1,18 @@
 package ru.practicum.core.http;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import ru.practicum.view.StatsDto;
+import ru.practicum.view.dto.StatsDto;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class StatsHttpClient {
@@ -32,11 +34,9 @@ public class StatsHttpClient {
 
     }
 
-    public Long getViews(String uri,
-                         LocalDateTime eventStartDate)
-            throws JsonProcessingException {
+    public List<StatsDto> getViews(String uri,
+                                   LocalDateTime eventStartDate) {
 
-        ObjectMapper mapper = new ObjectMapper();
         RestTemplate restTemplate = new RestTemplate();
 
         String urlTemplate = UriComponentsBuilder.fromHttpUrl(STATS_GET_URL)
@@ -46,20 +46,20 @@ public class StatsHttpClient {
                 .build(false)
                 .toUriString();
 
-        ResponseEntity<String> response
-                = restTemplate.getForEntity(urlTemplate, String.class);
+        ResponseEntity<List<StatsDto>> response =
+                restTemplate.exchange(
+                        urlTemplate,
+                        HttpMethod.GET,
+                        null,
+                        new ParameterizedTypeReference<List<StatsDto>>() {
+                        }
+                );
 
         // В ответ на запрос возвращается либо массив с кол-ом просмотров, либо пустой массив (актуально для только что
         // созданных событий, которые еще никто не смотрел и о которых нет записей о просмотрах).
-        if (response.getBody() == null || response.getBody().length() == 2) return 0L;
+        if (response.getBody() == null || response.getBody().size() == 0) return new ArrayList<>();
 
-        StatsDto root = mapper.readValue(response.getBody()
-                .replace("[", "")
-                .replace("]", ""), StatsDto.class);
-
-        long views = root.getHits();
-
-        return views == 1 ? 1L : views;
+        return response.getBody();
 
     }
 
