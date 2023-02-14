@@ -177,9 +177,7 @@ public class EventServiceImpl implements EventService {
         event.setInitiator(UserMapper.toUser(userService.getUsers(List.of(userId), 0, 1).get(0)));
         event.setState(EventState.PENDING.toString());
 
-        eventRepository.save(event);
-
-        return EventMapper.toEventFullDto(event);
+        return EventMapper.toEventFullDto(eventRepository.save(event));
 
     }
 
