@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-public class EventFullDto {
+public class EventFullDto implements IEventViewsDto {
 
     private long id;
 
@@ -28,7 +28,7 @@ public class EventFullDto {
     @JsonProperty("category")
     private CategoryDto categoryDto;
 
-    private long confirmedRequests;
+    private Long confirmedRequests;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss") // Нужно ли?
     private LocalDateTime createdOn;

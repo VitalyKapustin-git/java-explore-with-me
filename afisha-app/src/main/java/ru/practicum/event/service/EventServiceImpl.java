@@ -12,14 +12,12 @@ import ru.practicum.core.exceptions.ConflictException;
 import ru.practicum.core.exceptions.NotFoundException;
 import ru.practicum.core.http.StatsHttpClient;
 import ru.practicum.event.dao.EventRepository;
-import ru.practicum.event.dto.EventFullDto;
-import ru.practicum.event.dto.EventNewDto;
-import ru.practicum.event.dto.EventShortDto;
-import ru.practicum.event.dto.EventUpdateAdminDto;
+import ru.practicum.event.dto.*;
 import ru.practicum.event.enums.EventState;
 import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.Event;
-import ru.practicum.request.service.RequestService;
+import ru.practicum.request.dao.RequestRepository;
+import ru.practicum.request.dto.ConfirmedRequestsDto;
 import ru.practicum.user.mapper.UserMapper;
 import ru.practicum.user.service.UserService;
 import ru.practicum.view.dto.StatsDto;
@@ -39,9 +37,9 @@ public class EventServiceImpl implements EventService {
 
     private final CategoryService categoryService;
 
-    private final RequestService requestService;
-
     private final StatsHttpClient statsHttpClient;
+
+    private final RequestRepository requestRepository;
 
 
     @Override
@@ -54,7 +52,7 @@ public class EventServiceImpl implements EventService {
         Long eventViews = this.getViews(statsHttpClient.getViews("/events/" + eventId, eventFullDto.getCreatedOn()));
 
 
-        Long confirmedRequests = requestService.countConfirmedRequests(List.of(eventFullDto.getId()))
+        Long confirmedRequests = countConfirmedRequests(List.of(eventFullDto.getId()))
                 .get(eventFullDto.getId());
 
         eventFullDto.setViews(eventViews);
@@ -132,7 +130,7 @@ public class EventServiceImpl implements EventService {
                 .map(EventMapper::toEventShortDto)
                 .collect(Collectors.toList());
 
-        addViewsToEventsShort(eventShortDtos);
+        addViewsToEvents(eventShortDtos);
 
         // Проверка, есть ли в событии еще доступные места или нет (сравнение подтвержденных заявок и кол-ва мест на соб)
         if (onlyAvailable) eventShortDtos = eventShortDtos.stream()
@@ -159,7 +157,7 @@ public class EventServiceImpl implements EventService {
                 .map(EventMapper::toEventShortDto)
                 .collect(Collectors.toList());
 
-        addViewsToEventsShort(eventShortDtos);
+        addViewsToEvents(eventShortDtos);
 
         return eventShortDtos;
     }
@@ -186,7 +184,7 @@ public class EventServiceImpl implements EventService {
     public EventFullDto getOwnFullEventByUserId(long userId, long eventId) {
 
         EventFullDto eventFullDto = EventMapper.toEventFullDto(eventRepository.getEventByIdAndInitiator_Id(eventId, userId));
-        Long confirmedRequests = requestService.countConfirmedRequests(List.of(eventFullDto.getId()))
+        Long confirmedRequests = countConfirmedRequests(List.of(eventFullDto.getId()))
                 .get(eventFullDto.getId());
 
         eventFullDto.setViews(this.getViews(statsHttpClient.getViews("/events/" + eventFullDto.getId(),
@@ -273,7 +271,7 @@ public class EventServiceImpl implements EventService {
                 .map(EventMapper::toEventFullDto)
                 .collect(Collectors.toList());
 
-        addViewsToEventsFull(eventFullDtos);
+        addViewsToEvents(eventFullDtos);
 
         return eventFullDtos;
 
@@ -300,7 +298,7 @@ public class EventServiceImpl implements EventService {
                 .map(EventMapper::toEventFullDto)
                 .collect(Collectors.toList());
 
-        addViewsToEventsFull(eventFullDtos);
+        addViewsToEvents(eventFullDtos);
 
         return eventFullDtos;
     }
@@ -380,21 +378,21 @@ public class EventServiceImpl implements EventService {
 
     private Long getViews(List<StatsDto> statsDtoList) {
         if (statsDtoList != null && statsDtoList.size() > 0)
-            return statsDtoList.get(0).getHits() < 2 ? statsDtoList.get(0).getHits() : statsDtoList.get(0).getHits() - 1;
+            return statsDtoList.get(0).getHits();
         else
             return 0L;
     }
 
-    private void addViewsToEventsShort(List<EventShortDto> eventShortDtos) {
+    private void addViewsToEvents(List<? extends IEventViewsDto> events) {
 
         StringBuilder uris = new StringBuilder();
 
-        Map<Long, Long> confirmedRequests = requestService.countConfirmedRequests(eventShortDtos.stream()
-                .map(EventShortDto::getId)
+        Map<Long, Long> confirmedRequests = countConfirmedRequests(events.stream()
+                .map(IEventViewsDto::getId)
                 .collect(Collectors.toList())
         );
 
-        eventShortDtos.forEach(e ->
+        events.forEach(e ->
                 uris.append("/events/")
                         .append(e.getId())
                         .append(",")
@@ -402,8 +400,8 @@ public class EventServiceImpl implements EventService {
 
         uris.deleteCharAt(uris.length() - 1);
 
-        List<LocalDateTime> eventsDate = eventShortDtos.stream()
-                .map(EventShortDto::getEventDate)
+        List<LocalDateTime> eventsDate = events.stream()
+                .map(IEventViewsDto::getEventDate)
                 .collect(Collectors.toList());
 
         LocalDateTime minDate = Collections.min(eventsDate);
@@ -414,57 +412,21 @@ public class EventServiceImpl implements EventService {
                 StatsDto::getHits
         ));
 
-        eventShortDtos.forEach(e -> {
+        events.forEach(e -> {
             e.setViews(
-                    views.get("/events/" + e.getId()) == null ?
-                            0L : views.get("/events/" + e.getId()) < 2 ?
-                            views.get("/events/" + e.getId()) : views.get("/events/" + e.getId()) - 1
+                    views.getOrDefault(views.get("/events/" + e.getId()), 0L)
             );
-            e.setConfirmedRequests(confirmedRequests.get(e.getId()) == null ?
-                    0L : confirmedRequests.get(e.getId()));
+            e.setConfirmedRequests(confirmedRequests.getOrDefault(e.getId(), 0L));
         });
 
     }
 
-    private void addViewsToEventsFull(List<EventFullDto> eventFullDtos) {
+    private Map<Long, Long> countConfirmedRequests(List<Long> eventsId) {
 
-        StringBuilder uris = new StringBuilder();
+        List<ConfirmedRequestsDto> confirmedRequestsDtos = requestRepository.countConfirmedRequests(eventsId);
 
-        Map<Long, Long> confirmedRequests = requestService.countConfirmedRequests(eventFullDtos.stream()
-                .map(EventFullDto::getId)
-                .collect(Collectors.toList())
-        );
-
-        eventFullDtos.forEach(e ->
-                uris.append("/events/")
-                        .append(e.getId())
-                        .append(",")
-        );
-
-        uris.deleteCharAt(uris.length() - 1);
-
-        List<LocalDateTime> eventsDate = eventFullDtos.stream()
-                .map(EventFullDto::getEventDate)
-                .collect(Collectors.toList());
-
-        LocalDateTime minDate = Collections.min(eventsDate);
-        List<StatsDto> statsDtoList = statsHttpClient.getViews(uris.toString(), minDate);
-
-        Map<String, Long> views = statsDtoList.stream().collect(Collectors.toMap(
-                StatsDto::getUri,
-                StatsDto::getHits
-        ));
-
-        eventFullDtos.forEach(e -> {
-            e.setViews(
-                    views.get("/events/" + e.getId()) == null ?
-                            0L : views.get("/events/" + e.getId()) < 2 ?
-                            views.get("/events/" + e.getId()) : views.get("/events/" + e.getId()) - 1
-            );
-            e.setConfirmedRequests(confirmedRequests.get(e.getId()) == null ?
-                    0L : confirmedRequests.get(e.getId()));
-        });
-
+        return confirmedRequestsDtos.stream()
+                .collect(Collectors.toMap(ConfirmedRequestsDto::getEventId, ConfirmedRequestsDto::getViews));
     }
 
 }

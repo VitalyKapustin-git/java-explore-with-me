@@ -6,7 +6,6 @@ import ru.practicum.request.dto.RequestShortDto;
 import ru.practicum.request.dto.RequestStatusDto;
 
 import java.util.List;
-import java.util.Map;
 
 public interface RequestService {
 
@@ -25,7 +24,5 @@ public interface RequestService {
                                                                   long eventId,
                                                                   RequestStatusDto requestStatusDto)
             throws JsonProcessingException;
-
-    Map<Long, Long> countConfirmedRequests(List<Long> eventsId);
 
 }

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @JsonIgnoreProperties(value = {"createdOn", "participantLimit"})
-public class EventShortDto {
+public class EventShortDto implements IEventViewsDto {
 
     private long id;
 

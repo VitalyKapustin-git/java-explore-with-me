@@ -1,8 +1,7 @@
 package ru.practicum.request.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.core.exceptions.ConflictException;
@@ -12,7 +11,6 @@ import ru.practicum.event.enums.EventState;
 import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.service.EventService;
 import ru.practicum.request.dao.RequestRepository;
-import ru.practicum.request.dto.ConfirmedRequestsDto;
 import ru.practicum.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.request.dto.RequestShortDto;
 import ru.practicum.request.dto.RequestStatusDto;
@@ -22,11 +20,12 @@ import ru.practicum.request.model.Request;
 import ru.practicum.user.dao.UserRepository;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
 @Service
+@AllArgsConstructor
 public class RequestServiceImpl implements RequestService {
 
     private final RequestRepository requestRepository;
@@ -35,21 +34,6 @@ public class RequestServiceImpl implements RequestService {
 
     private final EventService eventService;
 
-
-    // Циклическая зависимость eventServiceImpl <-> requestServiceImpl. Здесь нужен
-    // сервис событий, так как в его методах логика для наполнения расширенной DTO
-    // данными по принятым запросам на участие
-    // Используется ленивая подгрузка @Lazy. Без событий не будет и запросов, так что
-    // вполне логично подгружать сервис событий в момент когда начинаем работать с
-    // запросами на участие
-    @Autowired
-    RequestServiceImpl(RequestRepository requestRepository,
-                       UserRepository userRepository,
-                       @Lazy EventService eventService) {
-        this.requestRepository = requestRepository;
-        this.userRepository = userRepository;
-        this.eventService = eventService;
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -130,7 +114,7 @@ public class RequestServiceImpl implements RequestService {
 
         EventFullDto event = eventService.getEventById(eventId);
 
-        if (event.getConfirmedRequests() == event.getParticipantLimit())
+        if (Objects.equals(event.getConfirmedRequests(), event.getParticipantLimit()))
             throw new ConflictException("No available tickets");
 
         validateOwner(userId, event.getInitiator().getId());
@@ -173,12 +157,5 @@ public class RequestServiceImpl implements RequestService {
         if (userId != requesterId) throw new NotOwnerException("User with id=" + userId + " is not owner of entity");
     }
 
-    public Map<Long, Long> countConfirmedRequests(List<Long> eventsId) {
-
-        List<ConfirmedRequestsDto> confirmedRequestsDtos = requestRepository.countConfirmedRequests(eventsId);
-
-        return confirmedRequestsDtos.stream()
-                .collect(Collectors.toMap(ConfirmedRequestsDto::getEventId, ConfirmedRequestsDto::getViews));
-    }
 
 }
