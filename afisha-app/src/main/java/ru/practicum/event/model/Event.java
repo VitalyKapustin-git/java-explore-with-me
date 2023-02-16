@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import ru.practicum.category.model.Category;
-import ru.practicum.compilation.model.Compilation;
 import ru.practicum.request.model.Request;
 import ru.practicum.user.model.User;
 
@@ -65,9 +64,6 @@ public class Event {
 
     @Column
     private Float lon;
-
-    @ManyToMany
-    private List<Compilation> compilations;
 
     @OneToMany(mappedBy = "event")
     private List<Request> requests;
