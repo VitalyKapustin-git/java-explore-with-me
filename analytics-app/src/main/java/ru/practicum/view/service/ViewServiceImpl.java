@@ -1,8 +1,13 @@
-package ru.practicum.view;
+package ru.practicum.view.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.view.dao.ViewRepository;
+import ru.practicum.view.dto.StatsDto;
+import ru.practicum.view.dto.ViewDto;
+import ru.practicum.view.mapper.ViewMapper;
+import ru.practicum.view.model.View;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

@@ -1,4 +1,7 @@
-package ru.practicum.view;
+package ru.practicum.view.mapper;
+
+import ru.practicum.view.dto.ViewDto;
+import ru.practicum.view.model.View;
 
 public class ViewMapper {
 

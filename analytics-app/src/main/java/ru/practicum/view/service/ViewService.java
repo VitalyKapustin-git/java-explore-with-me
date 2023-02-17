@@ -1,4 +1,7 @@
-package ru.practicum.view;
+package ru.practicum.view.service;
+
+import ru.practicum.view.dto.StatsDto;
+import ru.practicum.view.dto.ViewDto;
 
 import java.util.List;
 
