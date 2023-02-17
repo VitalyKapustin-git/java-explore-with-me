@@ -414,7 +414,7 @@ public class EventServiceImpl implements EventService {
 
         events.forEach(e -> {
             e.setViews(
-                    views.getOrDefault(views.get("/events/" + e.getId()), 0L)
+                    views.getOrDefault("/events/" + e.getId(), 0L)
             );
             e.setConfirmedRequests(confirmedRequests.getOrDefault(e.getId(), 0L));
         });
