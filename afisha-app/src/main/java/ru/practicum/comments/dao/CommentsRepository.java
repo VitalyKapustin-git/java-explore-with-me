@@ -20,6 +20,8 @@ public interface CommentsRepository extends JpaRepository<Comment, Integer> {
 
     Boolean existsCommentByIdAndAndAuthor_Id(long commentId, long authorId);
 
+    Boolean existsCommentById(long commentId);
+
     void removeCommentByIdAndAuthor_Id(long commentId, long authorId);
 
     List<Comment> getCommentsByAuthor_Id(long authorId, Pageable pageable);

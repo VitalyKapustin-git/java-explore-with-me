@@ -122,7 +122,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public void removeCommentAdmin(Long commentId) {
-        if (commentsRepository.getCommentById(commentId) == null)
+        if (!commentsRepository.existsCommentById(commentId))
             throw new NotFoundException("Comment with id=" + commentId + " not found.");
         commentsRepository.removeCommentById(commentId);
     }
