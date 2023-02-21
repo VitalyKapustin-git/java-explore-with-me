@@ -111,7 +111,9 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public void removeOwnComment(Long authorId, Long commentId) {
 
-        if (commentsRepository.existsCommentByIdAndAndAuthor_Id(commentId, authorId) == null)
+        validateUser(authorId);
+
+        if (!commentsRepository.existsCommentByIdAndAndAuthor_Id(commentId, authorId))
             throw new NotFoundException("Comment with id=" + commentId + " not found.");
         commentsRepository.removeCommentByIdAndAuthor_Id(commentId, authorId);
 
