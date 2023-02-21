@@ -18,6 +18,7 @@ import ru.practicum.event.model.Event;
 import ru.practicum.user.dao.UserRepository;
 import ru.practicum.user.model.User;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -83,10 +84,9 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public CommentShortDto createComment(Long userId, Long eventId, CommentNewDto commentNewDto) {
 
-        Comment comment = new Comment();
+        Comment comment = CommentsMapper.toComment(commentNewDto);
         comment.setAuthor(validateUser(userId));
         comment.setEvent(validateEvent(eventId));
-        comment.setComment(commentNewDto.getComment());
 
         return CommentsMapper.toCommentShortDto(commentsRepository.save(comment));
     }
@@ -95,13 +95,14 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public CommentDto updateComment(Long userId, Long eventId, CommentUpdateDto commentUpdateDto) {
 
-        Long commentNewDtoId = commentUpdateDto.getId();
+        Long commentUpdateDtoId = commentUpdateDto.getId();
         validateUser(userId);
         validateEvent(eventId);
 
-        Comment comment = commentsRepository.getCommentByIdAndAuthor_Id(commentNewDtoId, userId);
-        validateComment(comment, commentNewDtoId);
+        Comment comment = commentsRepository.getCommentByIdAndAuthor_Id(commentUpdateDtoId, userId);
+        validateComment(comment, commentUpdateDtoId);
         comment.setComment(commentUpdateDto.getComment());
+        comment.setUpdated(LocalDateTime.now());
 
         return CommentsMapper.toCommentDto(commentsRepository.save(comment));
     }
@@ -110,7 +111,7 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public void removeOwnComment(Long authorId, Long commentId) {
 
-        if (commentsRepository.commentExists(commentId, authorId) == null)
+        if (commentsRepository.existsCommentByIdAndAndAuthor_Id(commentId, authorId) == null)
             throw new NotFoundException("Comment with id=" + commentId + " not found.");
         commentsRepository.removeCommentByIdAndAuthor_Id(commentId, authorId);
 
@@ -119,8 +120,8 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public void removeCommentAdmin(Long commentId) {
-//        if (commentsRepository.getCommentById(commentId) == null)
-//            throw new NotFoundException("Comment with id=" + commentId + " not found.");
+        if (commentsRepository.getCommentById(commentId) == null)
+            throw new NotFoundException("Comment with id=" + commentId + " not found.");
         commentsRepository.removeCommentById(commentId);
     }
 
@@ -130,6 +131,7 @@ public class CommentServiceImpl implements CommentService {
 
         Comment comment = commentsRepository.getCommentById(commentUpdateDto.getId());
         comment.setComment(commentUpdateDto.getComment());
+        comment.setUpdated(LocalDateTime.now());
 
         return CommentsMapper.toCommentDto(comment);
     }

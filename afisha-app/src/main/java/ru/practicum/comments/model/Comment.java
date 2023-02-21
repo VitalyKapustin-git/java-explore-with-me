@@ -30,6 +30,8 @@ public class Comment {
 
     private LocalDateTime created = LocalDateTime.now();
 
+    private LocalDateTime updated;
+
     private String comment;
 
 }
